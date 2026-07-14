@@ -122,16 +122,26 @@ posture throughout, exactly as the spec requires.
 
 ---
 
-## Run it
+## Access it — three ways
+
+**1. Open the hosted page.** Published as a private claude.ai Artifact:
+<https://claude.ai/code/artifact/bd61f843-bd0b-4f0d-b9bb-f97a504f7a7a> — open it, and use
+the page's share menu to send it to anyone.
+
+**2. Open the standalone file.** [`standalone/future-map.html`](standalone/future-map.html)
+is the entire app inlined into one self-contained HTML file (JS, CSS, and fonts — no build,
+no server, no network). Download it and double-click. Regenerate it any time with
+`npm run artifact`.
+
+**3. Run the source.**
 
 ```bash
 npm install
 npm run dev        # http://localhost:5173
-```
 
-```bash
 npm run build      # typecheck + production build to dist/
 npm run preview    # serve the production build
+npm run artifact   # rebuild the single-file standalone/ + artifact/ deliverables
 ```
 
 Node 18+ recommended. State persists in `localStorage`; use the ↺ button (top right) to

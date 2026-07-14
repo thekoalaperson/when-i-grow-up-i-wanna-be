@@ -3,7 +3,12 @@ node_modules/
 
 # build output
 dist/
+dist-single/
 dist-ssr/
+
+# generated artifact-host body (regenerate with `npm run artifact`);
+# standalone/future-map.html IS committed as a ready-to-open snapshot.
+artifact/
 
 # local env / editor
 .env

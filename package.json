@@ -7,6 +7,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:single": "tsc -b && vite build --config vite.artifact.config.ts",
+    "artifact": "npm run build:single && node scripts/make-artifact.mjs",
     "preview": "vite preview --host",
     "typecheck": "tsc -b --noEmit"
   },
@@ -29,6 +31,7 @@
     "postcss": "^8.4.41",
     "tailwindcss": "^3.4.10",
     "typescript": "^5.5.4",
-    "vite": "^5.4.2"
+    "vite": "^5.4.2",
+    "vite-plugin-singlefile": "^2.3.3"
   }
 }

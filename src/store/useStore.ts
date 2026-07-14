@@ -41,6 +41,33 @@ import type {
   RightTab,
 } from './model'
 
+// Storage that survives a locked-down / sandboxed iframe (e.g. a published artifact),
+// where touching localStorage can throw — fall back to memory instead of blanking the app.
+const _mem = new Map<string, string>()
+const safeStorage = {
+  getItem: (k: string): string | null => {
+    try {
+      return localStorage.getItem(k)
+    } catch {
+      return _mem.get(k) ?? null
+    }
+  },
+  setItem: (k: string, v: string): void => {
+    try {
+      localStorage.setItem(k, v)
+    } catch {
+      _mem.set(k, v)
+    }
+  },
+  removeItem: (k: string): void => {
+    try {
+      localStorage.removeItem(k)
+    } catch {
+      _mem.delete(k)
+    }
+  },
+}
+
 let _c = 0
 const uid = (p = 'id'): string => {
   try {
@@ -659,7 +686,7 @@ export const useStore = create<State>()(
     },
     {
       name: 'future-map:v1',
-      storage: createJSONStorage(() => localStorage),
+      storage: createJSONStorage(() => safeStorage),
       partialize: (s) => ({
         mode: s.mode,
         started: s.started,
