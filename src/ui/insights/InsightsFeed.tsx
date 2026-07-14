@@ -13,7 +13,6 @@ import {
   PiggyBank,
   Route,
   ScanSearch,
-  SkipForward,
   Swords,
 } from 'lucide-react'
 import { useStore } from '@/store/useStore'
@@ -135,27 +134,17 @@ function InsightCard({ ins }: { ins: Insight }) {
 function ChallengeCard({ ins }: { ins: ChallengeInsight }) {
   const resolve = useStore((s) => s.resolveChallenge)
   const [reason, setReason] = useState('')
-  const resolved = ins.resolved
   const c = ins.payload
 
   return (
-    <Shell
-      icon={<Swords size={15} />}
-      title={resolved ? `Resolved — ${ins.title.replace('One question before you commit to ', '')}` : ins.title}
-      at={ins.at}
-      accent="#e8b04b"
-      glow={!resolved}
-    >
+    <Shell icon={<Swords size={15} />} title={ins.title} at={ins.at} accent="#e8b04b" glow>
       {c.mismatches.length > 0 && (
-        <div className="mb-3 space-y-2">
+        <div className="mb-2.5 space-y-1.5">
           {c.mismatches.map((m, i) => (
-            <div
-              key={i}
-              className="flex gap-2 rounded-lg border border-signal-alert/30 bg-signal-alert/5 p-2.5"
-            >
-              <AlertTriangle size={14} className="mt-0.5 shrink-0 text-signal-alert" />
-              <p className="text-[12.5px] leading-relaxed text-fg">
-                <span className="font-semibold text-signal-alert">{mismatchLabel(m.type)}: </span>
+            <div key={i} className="flex gap-2 rounded-lg border border-signal-alert/30 bg-signal-alert/5 px-2.5 py-2">
+              <AlertTriangle size={13} className="mt-0.5 shrink-0 text-signal-alert" />
+              <p className="text-[12px] leading-snug text-fg">
+                <span className="font-semibold text-signal-alert">{mismatchLabel(m.type)} · </span>
                 {m.text}
               </p>
             </div>
@@ -163,42 +152,37 @@ function ChallengeCard({ ins }: { ins: ChallengeInsight }) {
         </div>
       )}
 
-      <p className="text-balance text-[14px] leading-relaxed text-fg2">{c.question}</p>
+      <p className="text-balance text-[13.5px] leading-relaxed text-fg2">{c.question}</p>
 
-      {!resolved ? (
-        <div className="mt-3">
-          <textarea
-            value={reason}
-            onChange={(e) => setReason(e.target.value)}
-            placeholder="Why? (optional — becomes part of your profile)"
-            rows={2}
-            className="w-full resize-none rounded-lg border border-line bg-sunken px-3 py-2 text-[13px] text-fg outline-none placeholder:text-faint focus:border-amber/40"
-          />
-          <div className="mt-2 flex flex-wrap gap-2">
-            <button
-              onClick={() => resolve('confirm', reason)}
-              className="flex items-center gap-1.5 rounded-lg bg-signal-confirm/90 px-3 py-2 text-[13px] font-semibold text-oncolor transition hover:bg-signal-confirm"
-            >
-              <Check size={14} /> Confirm — I still choose this
-            </button>
-            <button
-              onClick={() => resolve('reconsider', reason)}
-              className="flex items-center gap-1.5 rounded-lg border border-amber/40 bg-amber/10 px-3 py-2 text-[13px] font-medium text-amber transition hover:bg-amber/20"
-            >
-              <Route size={14} /> Reconsider
-            </button>
-            <button
-              onClick={() => resolve('skip')}
-              className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-[13px] text-muted transition hover:bg-overlay"
-            >
-              <SkipForward size={14} /> Skip this one
-            </button>
-          </div>
-          <p className="mt-2 text-[11px] text-faint">Reconsidering is data, not failure.</p>
+      <div className="mt-3">
+        <textarea
+          value={reason}
+          onChange={(e) => setReason(e.target.value)}
+          placeholder="Why? (optional)"
+          rows={2}
+          className="w-full resize-none rounded-lg border border-line bg-sunken px-3 py-2 text-[13px] text-fg outline-none placeholder:text-faint focus:border-amber/40"
+        />
+        <div className="mt-2 flex flex-wrap gap-2">
+          <button
+            onClick={() => resolve(ins.id, 'confirm', reason)}
+            className="flex items-center gap-1.5 rounded-lg bg-signal-confirm/90 px-3.5 py-2 text-[13px] font-semibold text-oncolor transition hover:bg-signal-confirm"
+          >
+            <Check size={14} /> Confirm
+          </button>
+          <button
+            onClick={() => resolve(ins.id, 'reconsider', reason)}
+            className="flex items-center gap-1.5 rounded-lg border border-amber/40 bg-amber/10 px-3.5 py-2 text-[13px] font-medium text-amber transition hover:bg-amber/20"
+          >
+            <Route size={14} /> Reconsider
+          </button>
+          <button
+            onClick={() => resolve(ins.id, 'skip')}
+            className="rounded-lg px-3 py-2 text-[13px] text-muted transition hover:bg-overlay"
+          >
+            Skip
+          </button>
         </div>
-      ) : (
-        <div className="mt-2 text-[12px] italic text-muted">Answered — see the record.</div>
-      )}
+      </div>
     </Shell>
   )
 }

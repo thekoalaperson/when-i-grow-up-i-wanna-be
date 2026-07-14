@@ -119,7 +119,7 @@ interface State {
   pickInterest: (id: string) => void
   exploreStream: (id: string) => void
   exploreCareer: (id: string) => void
-  resolveChallenge: (choice: 'confirm' | 'reconsider' | 'skip', reasoning?: string) => void
+  resolveChallenge: (insightId: string, choice: 'confirm' | 'reconsider' | 'skip', reasoning?: string) => void
 
   excludeNode: (id: string) => void
   unexcludeNode: (id: string) => void
@@ -232,16 +232,16 @@ export const useStore = create<State>()(
       const recomputeTraits = () =>
         set((s) => ({ ctx: { ...s.ctx, profile: { ...s.ctx.profile, traits: traitsFromChosen(s.ctx, getNode) } } }))
 
-      const promptStreams = () => {
+      const promptStreams = (lead = 'After 10th, this becomes a stream. Which do you want to look at? (✨ fits you.)') => {
         const interestId = get().ctx.chosenInterestId
         const hints = interestId ? INTEREST_STREAM_HINTS[interestId] ?? [] : []
-        sysChips('After 10th, this becomes a stream. Which do you want to look at? (✨ fits what you said.)', streamChips(hints))
+        sysChips(lead, streamChips(hints))
       }
-      const promptCareers = (streamId: string) => {
-        sysChips('These open up after 12th. Which pulls you?', careerChips(streamId))
+      const promptCareers = (streamId: string, lead = 'These open up after 12th. Which pulls you?') => {
+        sysChips(lead, careerChips(streamId))
       }
-      const promptPostPath = () => {
-        sysChips('Real direction now. Pressure-test it, or take your profile?', POST_PATH_CHIPS)
+      const promptPostPath = (lead = 'Real direction now. Pressure-test it, or take your profile?') => {
+        sysChips(lead, POST_PATH_CHIPS)
       }
 
       const openChallenge = (node: DecisionNode) => {
@@ -249,30 +249,27 @@ export const useStore = create<State>()(
         const challenge = buildChallenge(node, ctx.profile, confirmedStages(ctx))
         const insId = uid('ins')
         set((s) => ({
+          // Only ever one open challenge — drop any previous unanswered one so cards
+          // never stack and every card resolves the choice it actually shows.
           insights: [
             {
               id: insId,
-              type: 'challenge',
+              type: 'challenge' as const,
               at: Date.now(),
               nodeId: node.id,
-              title: `One question before you commit to ${node.label}`,
+              title: `Before you commit — ${node.label}`,
               resolved: false,
               stage: node.stage as 2 | 3,
               payload: challenge,
             },
-            ...s.insights,
+            ...s.insights.filter((i) => !(i.type === 'challenge' && !i.resolved)),
           ],
           activeChallengeId: insId,
           rightTab: 'insights',
           // keep the graph clear during a challenge — the pulsing node + card are the focus
           selectedNodeId: undefined,
         }))
-        sys(
-          challenge.mismatches.length
-            ? `Before ${node.label} — I have to flag a tension first. It's on the right. →`
-            : `Before ${node.label} — one honest question. It's waiting on the right. →`,
-          { pointsTo: insId },
-        )
+        // The glowing card on the right IS the response — no extra chat line needed.
       }
 
       return {
@@ -342,10 +339,8 @@ export const useStore = create<State>()(
           if (prev && prev !== id) setStatus(prev, 'candidate')
           place(id, 'confirmed')
           set((s) => ({ ctx: { ...s.ctx, chosenInterestId: id } }))
-          user(node.label)
           addRecord(rec('note', `Interest signal: ${node.label}`, { nodeId: id }))
-          sys(node.insight.split(/(?<=[.!?])\s/)[0]) // one-line acknowledgement; full insight lives on the node
-          promptStreams()
+          promptStreams() // the node on the graph is the acknowledgement; this asks what's next
           set({ awaiting: undefined })
         },
 
@@ -354,7 +349,6 @@ export const useStore = create<State>()(
           const node = NODE_BY_ID[id]
           if (!node) return
           place(id, 'confirmed' === get().placed[id]?.status ? 'confirmed' : 'candidate')
-          user(`Let's look at ${node.label}`)
           openChallenge(node)
         },
 
@@ -363,24 +357,23 @@ export const useStore = create<State>()(
           const node = get().getNode(id)
           if (!node) return
           place(id, get().placed[id]?.status === 'confirmed' ? 'confirmed' : 'candidate')
-          user(`Tell me about ${node.label}`)
           openChallenge(node)
         },
 
-        resolveChallenge: (choice, reasoning) => {
+        resolveChallenge: (insightId, choice, reasoning) => {
           const st = get()
-          const insId = st.activeChallengeId
-          if (!insId) return
-          const ins = st.insights.find((i) => i.id === insId)
-          if (!ins || ins.type !== 'challenge') return
+          // Resolve the exact card that was clicked (never a stale global one).
+          const ins = st.insights.find((i) => i.id === insightId)
+          if (!ins || ins.type !== 'challenge' || ins.resolved) return
           const node = st.getNode(ins.nodeId!)!
           const contested = ins.payload.mismatches.length > 0
           const stage = node.stage
 
-          // mark resolved
+          // Remove the challenge card entirely — the outcome lives in the Record, so the
+          // insights feed stays uncluttered and no answered card lingers with dead buttons.
           set((s) => ({
-            insights: s.insights.map((i) => (i.id === insId ? { ...i, resolved: true } : i)),
-            activeChallengeId: undefined,
+            insights: s.insights.filter((i) => i.id !== insightId),
+            activeChallengeId: s.activeChallengeId === insightId ? undefined : s.activeChallengeId,
           }))
 
           if (choice === 'confirm') {
@@ -417,13 +410,8 @@ export const useStore = create<State>()(
                 detail: contested ? 'Confirmed despite a named mismatch — strong conviction signal.' : 'Confirmed.',
               }),
             )
-            if (stage === 2) {
-              sys(`Locked in — ${node.label}. Your profile just shifted. →`)
-              promptCareers(node.id)
-            } else {
-              sys(`${node.label} — a real direction now. →`)
-              promptPostPath()
-            }
+            if (stage === 2) promptCareers(node.id, `Locked in — ${node.label}. What comes after 12th?`)
+            else promptPostPath(`${node.label} — a real direction now. Pressure-test it, or take your profile?`)
           } else if (choice === 'reconsider') {
             setStatus(node.id, 'reconsidered')
             set((s) => {
@@ -446,14 +434,16 @@ export const useStore = create<State>()(
                 detail: reasoning?.trim() || 'Backed out of the challenge — logged as signal, not failure.',
               }),
             )
-            sys('Noted — backing out is data, not failure. Nothing’s closed.')
-            if (stage === 2) promptStreams()
-            else if (get().ctx.chosenStreamId) promptCareers(get().ctx.chosenStreamId!)
+            if (stage === 2) promptStreams("Noted — nothing’s closed. Look at another?")
+            else if (get().ctx.chosenStreamId)
+              promptCareers(get().ctx.chosenStreamId!, "Noted — nothing’s closed. Another direction?")
+            else promptStreams("Noted — nothing’s closed. Look at another?")
           } else {
             addRecord(rec('skip', `Skipped the challenge on ${node.label}`, { nodeId: node.id }))
-            sys('Skipped — it stays open.')
-            if (stage === 2) promptStreams()
-            else if (get().ctx.chosenStreamId) promptCareers(get().ctx.chosenStreamId!)
+            if (stage === 2) promptStreams('Skipped — still open. Another?')
+            else if (get().ctx.chosenStreamId)
+              promptCareers(get().ctx.chosenStreamId!, 'Skipped — still open. Another?')
+            else promptStreams('Skipped — still open. Another?')
           }
         },
 
@@ -504,18 +494,16 @@ export const useStore = create<State>()(
             const chosen = get().ctx.chosenPathId
             switch (val) {
               case 'prompt_claim':
-                user('Check something I was told')
-                sys('Go ahead — paste what you heard, and who said it.')
+                sys('Paste what you heard, and who said it.')
                 set({ awaiting: 'claim' })
                 return
               case 'opportunities':
                 if (chosen) return get().runOpportunities(chosen)
-                sys('Pick a career direction first, then I can show you what’s live right now.')
+                sys('Pick a direction first, then I’ll show what’s live.')
                 return
               case 'prompt_eligibility':
                 if (get().ctx.profile.percentage != null && chosen) return void get().runEligibility(chosen)
-                user('Am I eligible?')
-                sys('What did you score last? A percentage is enough — add your category too if you like (private, keeps cutoffs accurate).')
+                sys('What did you score last? A percentage is enough (add your category if you like — private, keeps cutoffs accurate).')
                 set({ awaiting: 'eligibility' })
                 return
               case 'freshness':
@@ -606,7 +594,7 @@ export const useStore = create<State>()(
               i.nodeIds.forEach((id) => place(id, get().placed[id]?.status ?? 'candidate'))
               addInsight({ id: uid('ins'), type: 'compare', at: Date.now(), title: `Comparing ${nodes.map((n) => n.label).join(' · ')}`, payload: nodes })
               addRecord(rec('note', `Compared: ${nodes.map((n) => n.label).join(' vs ')}`, { detail: 'Exploratory — nothing committed.' }))
-              sys('Side by side on the right — cost, timeline, pay, fit. Purely exploratory; it commits nothing. →')
+              sys('Side by side — exploratory, commits nothing. →')
               return
             }
             default:
@@ -617,7 +605,7 @@ export const useStore = create<State>()(
             const ctx = get().ctx
             // don't dress a wellbeing signal up as a data tool-call
             if (!isDistress(claim) && get().chat[get().chat.length - 1]?.role !== 'tool')
-              tool('check_claim', 'Checking this against real data — and what it means for your path specifically.')
+              tool('check_claim', 'Checking against real data — and what it means for you.')
             const verdict = await seedProvider.checkClaim({ claim, source: source ?? 'Unattributed' }, ctx)
             addInsight({ id: uid('ins'), type: 'verdict', at: Date.now(), title: 'Signal check', claim, source: source ?? 'Unattributed', payload: verdict, nodeId: ctx.chosenPathId })
             addRecord(rec('claim', claim.length > 80 ? claim.slice(0, 77) + '…' : claim, { detail: verdict.impactNote, meta: { impact: verdict.impact, truth: verdict.truthVerdict } }))
@@ -635,47 +623,42 @@ export const useStore = create<State>()(
           }
         },
 
+        // These are triggered by an explicit tap; the card on the right IS the answer.
         runOpportunities: (nodeId) => {
           const node = get().getNode(nodeId)
           if (!node) return
           addInsight({ id: uid('ins'), type: 'opportunity', at: Date.now(), nodeId, title: `What's live for ${node.label}`, payload: { node } })
           addRecord(rec('note', `Opened live opportunities for ${node.label}`, { nodeId }))
-          sys('Live search — genuine deep-links, never cached data. On the right. →')
         },
         runFreshness: async (nodeId) => {
           const f = await seedProvider.checkFreshness(nodeId)
           const node = get().getNode(nodeId)
           addInsight({ id: uid('ins'), type: 'freshness', at: Date.now(), nodeId, title: `What might change ${node?.label ?? 'this'}`, payload: f })
           addRecord(rec('freshness', `Freshness check: ${node?.label ?? nodeId}`, { nodeId, detail: f.note }))
-          sys(f.hasUpdate ? 'Something genuinely moved here — see the right. →' : 'Checked — nothing material has changed. I won’t pad it. →')
         },
         runEligibility: async (nodeId) => {
           const el = await seedProvider.checkEligibility(nodeId, get().ctx)
           const node = get().getNode(nodeId)
           addInsight({ id: uid('ins'), type: 'eligibility', at: Date.now(), nodeId, title: `Eligibility — ${node?.label ?? ''}`, payload: el })
           addRecord(rec('eligibility', `Eligibility: ${node?.label ?? nodeId}`, { nodeId, detail: el.gapNote }))
-          sys('On the right — a gap to verify, never a closed door. →')
         },
         runWorkaround: async (nodeId) => {
           const w = await seedProvider.findWorkaround(nodeId, get().ctx)
           const node = get().getNode(nodeId)
           addInsight({ id: uid('ins'), type: 'workaround', at: Date.now(), nodeId, title: `Legitimate routes to ${node?.label ?? 'this'}`, payload: w })
           addRecord(rec('research', `Workaround research: ${node?.label ?? nodeId}`, { nodeId }))
-          sys('Real, sanctioned alternate routes — on the right. →')
         },
         runAid: async (nodeId) => {
           const a = await seedProvider.checkFinancialAid(nodeId, get().ctx)
           const node = get().getNode(nodeId)
           addInsight({ id: uid('ins'), type: 'aid', at: Date.now(), nodeId, title: `Aid & funding for ${node?.label ?? 'this'}`, payload: a })
           addRecord(rec('research', `Financial-aid research: ${node?.label ?? nodeId}`, { nodeId }))
-          sys('Factual scheme info, not a recommendation. On the right. →')
         },
         runDeadlines: async (nodeId) => {
           const d = await seedProvider.checkDeadlines(nodeId)
           const node = get().getNode(nodeId)
           addInsight({ id: uid('ins'), type: 'deadline', at: Date.now(), nodeId, title: `Timing for ${node?.label ?? 'this'}`, payload: d })
           addRecord(rec('note', `Deadline check: ${node?.label ?? nodeId}`, { nodeId }))
-          sys('Indicative windows — a heads-up, verify on the source. →')
         },
 
         generateProfile: () => {

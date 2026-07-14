@@ -9,6 +9,10 @@ export default function ChatRail() {
   const chat = useStore((s) => s.chat)
   const scrollRef = useRef<HTMLDivElement>(null)
 
+  // Only the most recent prompt keeps its chips live; older chip-walls collapse to
+  // their text so the conversation doesn't fill with repeated button lists.
+  const lastChipsId = [...chat].reverse().find((m) => m.chips && m.chips.length)?.id
+
   useLayoutEffect(() => {
     const el = scrollRef.current
     if (el) el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' })
@@ -26,8 +30,8 @@ export default function ChatRail() {
       </div>
 
       <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto px-4 py-4">
-        {chat.map((m, i) => (
-          <Msg key={m.id} m={m} last={i === chat.length - 1} />
+        {chat.map((m) => (
+          <Msg key={m.id} m={m} showChips={m.id === lastChipsId} />
         ))}
       </div>
 
@@ -36,7 +40,7 @@ export default function ChatRail() {
   )
 }
 
-function Msg({ m, last }: { m: ChatMessage; last: boolean }) {
+function Msg({ m, showChips }: { m: ChatMessage; showChips: boolean }) {
   const handleChip = useStore((s) => s.handleChip)
 
   if (m.role === 'tool') {
@@ -76,12 +80,12 @@ function Msg({ m, last }: { m: ChatMessage; last: boolean }) {
           {m.text}
         </div>
       )}
-      {m.chips && m.chips.length > 0 && <Chips chips={m.chips} onPick={handleChip} enabled={last} />}
+      {showChips && m.chips && m.chips.length > 0 && <Chips chips={m.chips} onPick={handleChip} />}
     </motion.div>
   )
 }
 
-function Chips({ chips, onPick, enabled }: { chips: Chip[]; onPick: (c: Chip) => void; enabled: boolean }) {
+function Chips({ chips, onPick }: { chips: Chip[]; onPick: (c: Chip) => void }) {
   return (
     <div className="mt-2 flex max-w-full flex-wrap gap-1.5">
       {chips.map((c) => (
@@ -90,8 +94,7 @@ function Chips({ chips, onPick, enabled }: { chips: Chip[]; onPick: (c: Chip) =>
           onClick={() => onPick(c)}
           title={c.hint}
           className={cn(
-            'group rounded-full border px-3 py-1.5 text-left text-[12.5px] transition',
-            enabled ? 'hover:bg-overlay2' : 'opacity-60 hover:opacity-100',
+            'group rounded-full border px-3 py-1.5 text-left text-[12.5px] transition hover:bg-overlay2',
             c.highlight
               ? 'border-amber/50 bg-amber/10 text-amber'
               : 'border-line bg-overlay text-fg',
