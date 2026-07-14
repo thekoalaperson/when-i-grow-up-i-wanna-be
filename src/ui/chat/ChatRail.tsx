@@ -21,8 +21,8 @@ export default function ChatRail() {
           <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber/60 opacity-60" />
           <span className="relative inline-flex h-2 w-2 rounded-full bg-amber" />
         </span>
-        <span className="text-[13px] font-medium text-parchment-100">Future Map</span>
-        <span className="text-[11.5px] text-parchment-300/45">· thinks with you, decides nothing for you</span>
+        <span className="text-[13px] font-medium text-fg">Future Map</span>
+        <span className="text-[11.5px] text-faint">· decides nothing for you</span>
       </div>
 
       <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto px-4 py-4">
@@ -51,7 +51,7 @@ function Msg({ m, last }: { m: ChatMessage; last: boolean }) {
           <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-trait-analytical" />
         </span>
         <span className="font-mono text-[11px] text-trait-analytical/90">{m.tool}()</span>
-        <span className="text-[11px] italic text-parchment-300/55">{m.rationale}</span>
+        <span className="text-[11px] italic text-faint">{m.rationale}</span>
       </motion.div>
     )
   }
@@ -69,8 +69,8 @@ function Msg({ m, last }: { m: ChatMessage; last: boolean }) {
           className={cn(
             'max-w-[88%] rounded-2xl px-3.5 py-2.5 text-[13.5px] leading-relaxed',
             isUser
-              ? 'rounded-br-md bg-amber/15 text-parchment-50'
-              : 'rounded-bl-md bg-ink-800/70 text-parchment-100',
+              ? 'rounded-br-md bg-amber/15 text-fg2'
+              : 'rounded-bl-md bg-surface2 text-fg',
           )}
         >
           {m.text}
@@ -91,10 +91,10 @@ function Chips({ chips, onPick, enabled }: { chips: Chip[]; onPick: (c: Chip) =>
           title={c.hint}
           className={cn(
             'group rounded-full border px-3 py-1.5 text-left text-[12.5px] transition',
-            enabled ? 'hover:bg-white/10' : 'opacity-60 hover:opacity-100',
+            enabled ? 'hover:bg-overlay2' : 'opacity-60 hover:opacity-100',
             c.highlight
               ? 'border-amber/50 bg-amber/10 text-amber'
-              : 'border-white/12 bg-white/[0.03] text-parchment-100',
+              : 'border-line bg-overlay text-fg',
           )}
         >
           {c.highlight && <Sparkles size={11} className="mr-1 inline -translate-y-px" />}
@@ -134,7 +134,7 @@ function Composer() {
 
   return (
     <div className="border-t hairline p-3">
-      <div className="flex items-end gap-2 rounded-2xl border border-white/10 bg-ink-950/60 px-3 py-2 focus-within:border-amber/40">
+      <div className="flex items-end gap-2 rounded-2xl border border-line bg-sunken px-3 py-2 focus-within:border-amber/40">
         <textarea
           ref={taRef}
           value={value}
@@ -147,18 +147,18 @@ function Composer() {
           }}
           rows={1}
           placeholder={placeholder}
-          className="max-h-40 flex-1 resize-none bg-transparent py-1 text-[13.5px] leading-relaxed text-parchment-50 outline-none placeholder:text-parchment-300/40"
+          className="max-h-40 flex-1 resize-none bg-transparent py-1 text-[13.5px] leading-relaxed text-fg2 outline-none placeholder:text-faint"
         />
         <button
           onClick={send}
           disabled={!value.trim()}
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-amber/90 text-ink-950 transition hover:bg-amber disabled:opacity-30"
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-amber/90 text-oncolor transition hover:bg-amber disabled:opacity-30"
         >
           <ArrowUp size={17} strokeWidth={2.5} />
         </button>
       </div>
-      <p className="mt-1.5 px-1 text-[10.5px] text-parchment-300/40">
-        Small nudges from me · your longer thoughts and documents go here. The work builds on the right. →
+      <p className="mt-1.5 px-1 text-[10.5px] text-faint">
+        Your longer thoughts go here — the map builds on the right. →
       </p>
     </div>
   )

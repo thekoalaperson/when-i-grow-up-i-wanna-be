@@ -151,7 +151,7 @@ export function narrativePortrait(
       ? `So far you read as ${names[top[0]]}, with a strong streak of the ${top[1]} in you.`
       : `So far you read as ${names[top[0]]}.`
   const conv = convictionRead(profile)
-  const tail = profile.convictionSamples >= 2 ? ` When you're pushed on a choice, you ${conv.label.toLowerCase()}.` : ''
+  const tail = profile.convictionSamples >= 2 ? ` Under pressure: ${conv.label.toLowerCase()}.` : ''
   return lead + tail
 }
 

@@ -43,18 +43,18 @@ export function buildChallenge(
     if (node.costMin > budget) {
       mismatches.push({
         type: 'budget',
-        text: `This is over your ${fmtLakh(budget)} budget even on the cheapest realistic route — by about ${fmtLakh(
+        text: `Over your ${fmtLakh(budget)} budget even on the cheapest route — by ~${fmtLakh(
           node.costMin - budget,
-        )}. There isn’t a version of this path inside your budget as set.`,
+        )}. No version of this fits as set.`,
       })
     } else if (node.costMax != null && node.costMax > budget) {
       mismatches.push({
         type: 'budget',
-        text: `A cheaper route through this path fits your ${fmtLakh(
-          budget,
-        )} budget (from ${fmtLakh(node.costMin)}), but the typical private ceiling is ${fmtLakh(
-          node.costMax,
-        )} — ${fmtLakh(node.costMax - budget)} over. The path is only affordable at its lower end.`,
+        text: `Fits your ${fmtLakh(budget)} budget only at the low end (from ${fmtLakh(
+          node.costMin,
+        )}); the typical private ceiling is ${fmtLakh(node.costMax)}, ${fmtLakh(
+          node.costMax - budget,
+        )} over.`,
       })
     }
   }
@@ -68,9 +68,9 @@ export function buildChallenge(
   ) {
     mismatches.push({
       type: 'timeline',
-      text: `You said you want to be earning within ${profile.constraints.maxYears} years. This path is about ${node.yearsToFirstIncome} years to a first real paycheck — ${(
+      text: `~${node.yearsToFirstIncome} yrs to a first paycheck — ${(
         node.yearsToFirstIncome - profile.constraints.maxYears
-      ).toFixed(1)} longer than you wanted.`,
+      ).toFixed(1)} longer than the ${profile.constraints.maxYears} you set.`,
     })
   }
 
@@ -91,11 +91,9 @@ export function buildChallenge(
       if (strong && strong !== nodeTop) {
         mismatches.push({
           type: 'profile',
-          text: `This path leans hard on being ${TRAIT_META[nodeTop].label.toLowerCase()} — ${TRAIT_META[
-            nodeTop
-          ].blurb}. So far your choices have read more ${TRAIT_META[
+          text: `Leans ${TRAIT_META[nodeTop].label.toLowerCase()}, but your choices so far read more ${TRAIT_META[
             strong
-          ].label.toLowerCase()} than that. Not a veto — just worth naming before you commit.`,
+          ].label.toLowerCase()}. Not a veto — just worth naming.`,
         })
       }
     }

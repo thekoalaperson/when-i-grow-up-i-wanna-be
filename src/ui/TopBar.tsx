@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { GraduationCap, Info, RotateCcw, UserRound, X } from 'lucide-react'
+import { GraduationCap, Info, Moon, RotateCcw, Sun, UserRound, X } from 'lucide-react'
 import { useStore } from '@/store/useStore'
 import type { Mode } from '@/store/model'
 import { cn } from '@ui/lib/util'
@@ -9,6 +9,8 @@ export default function TopBar() {
   const mode = useStore((s) => s.mode)
   const setMode = useStore((s) => s.setMode)
   const resetAll = useStore((s) => s.resetAll)
+  const theme = useStore((s) => s.theme)
+  const toggleTheme = useStore((s) => s.toggleTheme)
   const [about, setAbout] = useState(false)
   const [confirmReset, setConfirmReset] = useState(false)
 
@@ -17,8 +19,8 @@ export default function TopBar() {
       <div className="flex items-center gap-2.5">
         <Mark />
         <div className="leading-none">
-          <div className="font-display text-[17px] tracking-tight text-parchment-50">Future Map</div>
-          <div className="hidden text-[11px] text-parchment-300/50 sm:block">
+          <div className="font-display text-[17px] tracking-tight text-fg2">Future Map</div>
+          <div className="hidden text-[11px] text-faint sm:block">
             decide with your eyes open
           </div>
         </div>
@@ -27,15 +29,33 @@ export default function TopBar() {
       <div className="flex items-center gap-2">
         <ModeToggle mode={mode} setMode={setMode} />
         <button
+          onClick={toggleTheme}
+          className="flex h-8 w-8 items-center justify-center rounded-lg border border-line text-muted transition hover:bg-overlay hover:text-fg2"
+          title={theme === 'dark' ? 'Switch to light' : 'Switch to dark'}
+          aria-label="Toggle light / dark theme"
+        >
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.span
+              key={theme}
+              initial={{ rotate: -90, opacity: 0 }}
+              animate={{ rotate: 0, opacity: 1 }}
+              exit={{ rotate: 90, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
+            </motion.span>
+          </AnimatePresence>
+        </button>
+        <button
           onClick={() => setAbout(true)}
-          className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 text-parchment-300/70 transition hover:bg-white/5 hover:text-parchment-50"
+          className="flex h-8 w-8 items-center justify-center rounded-lg border border-line text-muted transition hover:bg-overlay hover:text-fg2"
           title="How this works"
         >
           <Info size={15} />
         </button>
         <button
           onClick={() => setConfirmReset(true)}
-          className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 text-parchment-300/70 transition hover:bg-white/5 hover:text-parchment-50"
+          className="flex h-8 w-8 items-center justify-center rounded-lg border border-line text-muted transition hover:bg-overlay hover:text-fg2"
           title="Start over"
         >
           <RotateCcw size={15} />
@@ -61,9 +81,9 @@ export default function TopBar() {
 function Mark() {
   return (
     <svg width="30" height="30" viewBox="0 0 32 32" className="shrink-0">
-      <line x1="16" y1="16" x2="6" y2="9" stroke="rgba(255,255,255,0.2)" />
-      <line x1="16" y1="16" x2="26" y2="11" stroke="rgba(255,255,255,0.2)" />
-      <line x1="16" y1="16" x2="24" y2="25" stroke="rgba(255,255,255,0.2)" />
+      <line x1="16" y1="16" x2="6" y2="9" className="[stroke:var(--line2)]" />
+      <line x1="16" y1="16" x2="26" y2="11" className="[stroke:var(--line2)]" />
+      <line x1="16" y1="16" x2="24" y2="25" className="[stroke:var(--line2)]" />
       <circle cx="16" cy="16" r="5" fill="#e8b04b" />
       <circle cx="6" cy="9" r="2.5" fill="#5aa9e6" />
       <circle cx="26" cy="11" r="2.5" fill="#4fc4a1" />
@@ -78,14 +98,14 @@ function ModeToggle({ mode, setMode }: { mode: Mode; setMode: (m: Mode) => void 
     { id: 'counsellor', label: 'Counsellor', icon: <GraduationCap size={13} /> },
   ]
   return (
-    <div className="flex rounded-lg border border-white/10 bg-ink-950/40 p-0.5">
+    <div className="flex rounded-lg border border-line bg-sunken p-0.5">
       {opts.map((o) => (
         <button
           key={o.id}
           onClick={() => setMode(o.id)}
           className={cn(
             'relative flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[12px] font-medium transition',
-            mode === o.id ? 'text-ink-950' : 'text-parchment-300/60 hover:text-parchment-100',
+            mode === o.id ? 'text-oncolor' : 'text-muted hover:text-fg',
           )}
         >
           {mode === o.id && (
@@ -108,7 +128,7 @@ function Backdrop({ children, onClose }: { children: React.ReactNode; onClose: (
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       onClick={onClose}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-ink-950/70 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-sunken p-4 backdrop-blur-sm"
     >
       {children}
     </motion.div>
@@ -133,31 +153,31 @@ function AboutModal({ onClose }: { onClose: () => void }) {
         className="max-h-[85vh] w-full max-w-lg overflow-y-auto rounded-2xl glass p-6 shadow-panel"
       >
         <div className="mb-3 flex items-start justify-between">
-          <h2 className="text-[20px] text-parchment-50">What Future Map is</h2>
-          <button onClick={onClose} className="rounded-lg p-1 text-parchment-300/60 hover:bg-white/8">
+          <h2 className="text-[20px] text-fg2">What Future Map is</h2>
+          <button onClick={onClose} className="rounded-lg p-1 text-muted hover:bg-overlay2">
             <X size={18} />
           </button>
         </div>
-        <p className="mb-4 text-[13.5px] leading-relaxed text-parchment-100">
+        <p className="mb-4 text-[13.5px] leading-relaxed text-fg">
           A grounded companion for choosing a stream and a career — built for students in grades 8–12, and
           usable by a counsellor on a student’s behalf. The chat stays small; the map, the insights, and the
           profile you build are the point.
         </p>
         <div className="space-y-2.5">
           {commitments.map(([t, d], i) => (
-            <div key={i} className="flex gap-3 rounded-xl bg-ink-950/40 p-3">
+            <div key={i} className="flex gap-3 rounded-xl bg-sunken p-3">
               <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-amber/20 text-[11px] font-bold text-amber">
                 {i + 1}
               </span>
               <div>
-                <div className="text-[13.5px] font-semibold text-parchment-50">{t}</div>
-                <div className="text-[12.5px] leading-relaxed text-parchment-300/75">{d}</div>
+                <div className="text-[13.5px] font-semibold text-fg2">{t}</div>
+                <div className="text-[12.5px] leading-relaxed text-muted">{d}</div>
               </div>
             </div>
           ))}
         </div>
-        <div className="mt-4 rounded-xl border border-white/8 p-3 text-[12px] leading-relaxed text-parchment-300/70">
-          <span className="font-semibold text-parchment-100">On the data:</span> figures here are 2026-indicative
+        <div className="mt-4 rounded-xl border border-line p-3 text-[12px] leading-relaxed text-muted">
+          <span className="font-semibold text-fg">On the data:</span> figures here are 2026-indicative
           seed research, shown with an “as of” date and a link to the primary source. In a live deployment the
           same checks run against current search results, weighting official sources over marketing. Always
           verify a cutoff or deadline on the official source before acting.
@@ -177,21 +197,21 @@ function ConfirmReset({ onCancel, onConfirm }: { onCancel: () => void; onConfirm
         onClick={(e) => e.stopPropagation()}
         className="w-full max-w-sm rounded-2xl glass p-5 shadow-panel"
       >
-        <h3 className="text-[16px] text-parchment-50">Start over?</h3>
-        <p className="mt-1 text-[13px] leading-relaxed text-parchment-300/75">
+        <h3 className="text-[16px] text-fg2">Start over?</h3>
+        <p className="mt-1 text-[13px] leading-relaxed text-muted">
           This clears your map, profile, and record on this device. There’s no undo — consider getting your
           profile first.
         </p>
         <div className="mt-4 flex justify-end gap-2">
           <button
             onClick={onCancel}
-            className="rounded-lg px-3 py-2 text-[13px] text-parchment-300/75 hover:bg-white/5"
+            className="rounded-lg px-3 py-2 text-[13px] text-muted hover:bg-overlay"
           >
             Keep it
           </button>
           <button
             onClick={onConfirm}
-            className="rounded-lg bg-signal-alert/90 px-3 py-2 text-[13px] font-semibold text-ink-950 hover:bg-signal-alert"
+            className="rounded-lg bg-signal-alert/90 px-3 py-2 text-[13px] font-semibold text-oncolor hover:bg-signal-alert"
           >
             Start over
           </button>

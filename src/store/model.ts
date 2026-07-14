@@ -12,6 +12,7 @@ import type {
 } from '@engine/index'
 
 export type Mode = 'student' | 'counsellor'
+export type Theme = 'light' | 'dark'
 
 export type NodeStatus = 'candidate' | 'confirmed' | 'reconsidered' | 'excluded'
 

@@ -4,25 +4,25 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Warm ink base — a cartographer's desk at night, not a SaaS dashboard.
-        ink: {
-          950: '#0b0d12',
-          900: '#101319',
-          850: '#151922',
-          800: '#1a1f2b',
-          700: '#232a38',
-          600: '#323b4d',
-        },
-        parchment: {
-          50: '#f7f4ec',
-          100: '#efe9db',
-          200: '#ded4bd',
-          300: '#c4b490',
-        },
-        // Insight — the light you're navigating toward.
+        // ── Semantic, theme-aware tokens (see index.css for light/dark values) ──
+        bg: 'var(--bg)',
+        surface: 'var(--surface)',
+        surface2: 'var(--surface2)',
+        surface3: 'var(--surface3)',
+        sunken: 'var(--sunken)',
+        fg: 'var(--fg)',
+        fg2: 'var(--fg2)',
+        muted: 'var(--muted)',
+        faint: 'var(--faint)',
+        line: 'var(--line)',
+        line2: 'var(--line2)',
+        overlay: 'var(--overlay)',
+        overlay2: 'var(--overlay2)',
+        oncolor: 'var(--oncolor)',
+        // Insight — the light you're navigating toward. Darkens in light theme for contrast.
         amber: {
-          DEFAULT: '#e8b04b',
-          soft: '#f0c874',
+          DEFAULT: 'rgb(var(--amber) / <alpha-value>)',
+          soft: 'var(--amber-soft)',
           deep: '#c98a2c',
         },
         // Trait hues — each of the five gets its own light.

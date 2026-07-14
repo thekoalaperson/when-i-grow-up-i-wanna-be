@@ -45,7 +45,7 @@ export default function ProfilePanel() {
           <div className="mb-1 flex items-center gap-2 text-xs uppercase tracking-wider text-amber/80">
             <Sparkles size={13} /> Who you read as
           </div>
-          <p className="text-balance text-[15px] leading-relaxed text-parchment-100">{portrait}</p>
+          <p className="text-balance text-[15px] leading-relaxed text-fg">{portrait}</p>
         </div>
 
         {/* radar */}
@@ -61,11 +61,11 @@ export default function ProfilePanel() {
                   <span className="text-[13px] font-medium" style={{ color: TRAIT_META[t].color }}>
                     {TRAIT_META[t].label}
                   </span>
-                  <span className="text-[11px] tabular-nums text-parchment-300/60">
+                  <span className="text-[11px] tabular-nums text-muted">
                     {Math.round(norm[t] * 100)}%
                   </span>
                 </div>
-                <div className="h-1.5 overflow-hidden rounded-full bg-white/5">
+                <div className="h-1.5 overflow-hidden rounded-full bg-overlay">
                   <motion.div
                     className="h-full rounded-full"
                     style={{ background: TRAIT_META[t].color }}
@@ -78,7 +78,7 @@ export default function ProfilePanel() {
             ))}
         </div>
         {!anyConfirmed && (
-          <p className="mt-3 text-[12px] leading-relaxed text-parchment-300/55">
+          <p className="mt-3 text-[12px] leading-relaxed text-faint">
             {interestHint
               ? 'The dashed shape is where your interest leans — it isn’t counted yet. Traits only fill in from a choice you put through a challenge and confirm.'
               : 'Traits fill in from confirmed choices only — never from a click alone. That’s deliberate: this reflects what you decided.'}
@@ -88,12 +88,12 @@ export default function ProfilePanel() {
         {/* conviction */}
         <div className="mt-6">
           <div className="mb-1.5 flex items-center justify-between">
-            <span className="text-xs uppercase tracking-wider text-parchment-300/70">
+            <span className="text-xs uppercase tracking-wider text-muted">
               Under pushback
             </span>
             <span className="text-[13px] font-medium text-amber">{conv.label}</span>
           </div>
-          <div className="relative h-2 overflow-hidden rounded-full bg-white/5">
+          <div className="relative h-2 overflow-hidden rounded-full bg-overlay">
             <motion.div
               className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-signal-exclude via-amber to-signal-confirm"
               initial={{ width: '50%' }}
@@ -101,12 +101,12 @@ export default function ProfilePanel() {
               transition={{ type: 'spring', stiffness: 120, damping: 20 }}
             />
           </div>
-          <p className="mt-1.5 text-[12px] leading-relaxed text-parchment-300/65">{conv.blurb}</p>
+          <p className="mt-1.5 text-[12px] leading-relaxed text-muted">{conv.blurb}</p>
         </div>
 
         {/* where you are */}
         <div className="mt-6 space-y-2">
-          <span className="text-xs uppercase tracking-wider text-parchment-300/70">On the map</span>
+          <span className="text-xs uppercase tracking-wider text-muted">On the map</span>
           <Row label="Interest" value={interestHint?.label} />
           <Row label="Stream" value={stream ? stream.label : undefined} />
           <Row label="Direction" value={path ? path.label : undefined} strong />
@@ -123,7 +123,7 @@ export default function ProfilePanel() {
           ctx.profile.constraints.maxYears != null ||
           ctx.profile.percentage != null) && (
           <div className="mt-6 space-y-2">
-            <span className="text-xs uppercase tracking-wider text-parchment-300/70">
+            <span className="text-xs uppercase tracking-wider text-muted">
               Constraints on the table
             </span>
             {ctx.profile.constraints.budgetLakh != null && (
@@ -142,7 +142,7 @@ export default function ProfilePanel() {
                 }`}
               />
             )}
-            <p className="text-[11px] text-parchment-300/45">
+            <p className="text-[11px] text-faint">
               Say “budget 8 lakh”, “within 4 years”, or “I got 88%” in chat to change these.
             </p>
           </div>
@@ -153,12 +153,12 @@ export default function ProfilePanel() {
       <div className="border-t hairline p-4">
         <button
           onClick={generateProfile}
-          className="group flex w-full items-center justify-center gap-2 rounded-xl bg-amber/90 px-4 py-2.5 text-sm font-semibold text-ink-950 transition hover:bg-amber"
+          className="group flex w-full items-center justify-center gap-2 rounded-xl bg-amber/90 px-4 py-2.5 text-sm font-semibold text-oncolor transition hover:bg-amber"
         >
           <Download size={15} />
           Get my profile
         </button>
-        <p className="mt-2 text-center text-[11px] text-parchment-300/50">
+        <p className="mt-2 text-center text-[11px] text-faint">
           Yours to keep — even if you never commit to a path.
         </p>
       </div>
@@ -169,11 +169,11 @@ export default function ProfilePanel() {
 function Row({ label, value, strong }: { label: string; value?: string; strong?: boolean }) {
   return (
     <div className="flex items-baseline justify-between gap-3">
-      <span className="text-[12px] text-parchment-300/60">{label}</span>
+      <span className="text-[12px] text-muted">{label}</span>
       <span
         className={cn(
           'text-right text-[13px]',
-          value ? (strong ? 'font-semibold text-parchment-50' : 'text-parchment-100') : 'text-parchment-300/40',
+          value ? (strong ? 'font-semibold text-fg2' : 'text-fg') : 'text-faint',
         )}
       >
         {value ?? 'not yet'}
@@ -204,21 +204,22 @@ function Radar({
 
   return (
     <div className="flex justify-center">
-      <svg viewBox={`0 0 ${size} ${size}`} width={size} height={size}>
+      {/* extra horizontal room in the viewBox so axis labels don't clip */}
+      <svg viewBox={`-54 -6 ${size + 108} ${size + 12}`} width={size + 64} height={size}>
         {/* rings */}
         {[0.25, 0.5, 0.75, 1].map((ring) => (
           <polygon
             key={ring}
             points={poly(keys.map(() => ring))}
             fill="none"
-            stroke="rgba(255,255,255,0.07)"
+            className="[stroke:var(--ring)]"
             strokeWidth={1}
           />
         ))}
         {/* axes */}
         {keys.map((_, i) => {
           const [x, y] = pt(i, 1)
-          return <line key={i} x1={c} y1={c} x2={x} y2={y} stroke="rgba(255,255,255,0.06)" />
+          return <line key={i} x1={c} y1={c} x2={x} y2={y} className="[stroke:var(--axis)]" />
         })}
         {/* hint polygon */}
         {hintValues && (
@@ -240,10 +241,17 @@ function Radar({
           animate={{ points: poly(values) }}
           transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
         />
-        {/* vertices + labels */}
+        {/* vertices + labels — short forms so they never clip the compact box */}
         {keys.map((k, i) => {
           const [vx, vy] = pt(i, values[i])
-          const [lx, ly] = pt(i, 1.24)
+          const [lx, ly] = pt(i, 1.18)
+          const short: Record<TraitKey, string> = {
+            analytical: 'Analytical',
+            creative: 'Creative',
+            risk: 'Risk',
+            people: 'People',
+            structure: 'Structure',
+          }
           return (
             <g key={k}>
               <circle cx={vx} cy={vy} r={2.6} fill={TRAIT_META[k].color} />
@@ -252,9 +260,9 @@ function Radar({
                 y={ly}
                 textAnchor={lx < c - 4 ? 'end' : lx > c + 4 ? 'start' : 'middle'}
                 dominantBaseline="middle"
-                style={{ fontSize: 9.5, fill: TRAIT_META[k].color, opacity: 0.85 }}
+                style={{ fontSize: 10, fill: TRAIT_META[k].color, opacity: 0.9 }}
               >
-                {TRAIT_META[k].label}
+                {short[k]}
               </text>
             </g>
           )

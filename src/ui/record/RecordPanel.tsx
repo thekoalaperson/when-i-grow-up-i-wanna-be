@@ -34,9 +34,8 @@ export default function RecordPanel() {
   if (records.length === 0) {
     return (
       <div className="flex h-full items-center justify-center px-8 text-center">
-        <div className="max-w-[280px] text-sm leading-relaxed text-parchment-300/55">
-          One continuous record. A confirmed choice, a reconsideration, a checked claim — they all
-          live here, in order, so nothing you learn gets lost in a silo.
+        <div className="max-w-[260px] text-sm leading-relaxed text-faint">
+          One continuous record — every choice, reconsideration, and checked claim, in order.
         </div>
       </div>
     )
@@ -45,7 +44,7 @@ export default function RecordPanel() {
   return (
     <div className="h-full overflow-y-auto px-5 py-4">
       <div className="relative">
-        <div className="absolute bottom-2 left-[10px] top-2 w-px bg-white/8" />
+        <div className="absolute bottom-2 left-[10px] top-2 w-px bg-overlay2" />
         <div className="space-y-4">
           {records.map((r) => (
             <Entry key={r.id} r={r} />
@@ -62,7 +61,7 @@ function Entry({ r }: { r: RecordEntry }) {
     <div className="relative flex gap-3 pl-0">
       <div
         className="z-10 mt-0.5 flex h-[21px] w-[21px] shrink-0 items-center justify-center rounded-full border"
-        style={{ borderColor: `${meta.color}66`, background: '#12151d', color: meta.color }}
+        style={{ borderColor: `${meta.color}66`, background: 'var(--icon-bg)', color: meta.color }}
       >
         {meta.icon}
       </div>
@@ -71,16 +70,16 @@ function Entry({ r }: { r: RecordEntry }) {
           <span className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: meta.color }}>
             {meta.word}
           </span>
-          <span className="shrink-0 text-[10.5px] text-parchment-300/40">{timeAgo(r.at)}</span>
+          <span className="shrink-0 text-[10.5px] text-faint">{timeAgo(r.at)}</span>
         </div>
-        <div className="text-[13.5px] leading-snug text-parchment-50">{r.title}</div>
+        <div className="text-[13.5px] leading-snug text-fg2">{r.title}</div>
         {r.reasoning && (
-          <div className="mt-1 border-l-2 border-amber/40 pl-2 text-[12.5px] italic leading-relaxed text-parchment-100">
+          <div className="mt-1 border-l-2 border-amber/40 pl-2 text-[12.5px] italic leading-relaxed text-fg">
             “{r.reasoning}”
           </div>
         )}
         {r.detail && !r.reasoning && (
-          <div className={cn('mt-0.5 text-[12px] leading-relaxed text-parchment-300/65')}>{r.detail}</div>
+          <div className={cn('mt-0.5 text-[12px] leading-relaxed text-muted')}>{r.detail}</div>
         )}
       </div>
     </div>

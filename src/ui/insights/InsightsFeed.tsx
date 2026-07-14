@@ -39,9 +39,8 @@ export default function InsightsFeed() {
   if (insights.length === 0) {
     return (
       <div className="flex h-full items-center justify-center px-8 text-center">
-        <div className="max-w-[300px] text-sm leading-relaxed text-parchment-300/55">
-          This is where your thinking accretes. Every challenge you face, every claim you check, and
-          every path you weigh lands here — one continuous record you can always come back to.
+        <div className="max-w-[260px] text-sm leading-relaxed text-faint">
+          Your thinking gathers here — every challenge, claim, and path you weigh. One place, always.
         </div>
       </div>
     )
@@ -98,8 +97,8 @@ function Shell({
         <span className="shrink-0" style={{ color: accent ?? '#e8b04b' }}>
           {icon}
         </span>
-        <h4 className="flex-1 text-[13px] font-semibold leading-tight text-parchment-50">{title}</h4>
-        <span className="shrink-0 text-[10.5px] text-parchment-300/45">{timeAgo(at)}</span>
+        <h4 className="flex-1 text-[13px] font-semibold leading-tight text-fg2">{title}</h4>
+        <span className="shrink-0 text-[10.5px] text-faint">{timeAgo(at)}</span>
       </div>
       {children}
     </div>
@@ -155,7 +154,7 @@ function ChallengeCard({ ins }: { ins: ChallengeInsight }) {
               className="flex gap-2 rounded-lg border border-signal-alert/30 bg-signal-alert/5 p-2.5"
             >
               <AlertTriangle size={14} className="mt-0.5 shrink-0 text-signal-alert" />
-              <p className="text-[12.5px] leading-relaxed text-parchment-100">
+              <p className="text-[12.5px] leading-relaxed text-fg">
                 <span className="font-semibold text-signal-alert">{mismatchLabel(m.type)}: </span>
                 {m.text}
               </p>
@@ -164,21 +163,21 @@ function ChallengeCard({ ins }: { ins: ChallengeInsight }) {
         </div>
       )}
 
-      <p className="text-balance text-[14px] leading-relaxed text-parchment-50">{c.question}</p>
+      <p className="text-balance text-[14px] leading-relaxed text-fg2">{c.question}</p>
 
       {!resolved ? (
         <div className="mt-3">
           <textarea
             value={reason}
             onChange={(e) => setReason(e.target.value)}
-            placeholder="Your honest answer (optional — it becomes part of your profile)"
+            placeholder="Why? (optional — becomes part of your profile)"
             rows={2}
-            className="w-full resize-none rounded-lg border border-white/8 bg-ink-950/60 px-3 py-2 text-[13px] text-parchment-100 outline-none placeholder:text-parchment-300/35 focus:border-amber/40"
+            className="w-full resize-none rounded-lg border border-line bg-sunken px-3 py-2 text-[13px] text-fg outline-none placeholder:text-faint focus:border-amber/40"
           />
           <div className="mt-2 flex flex-wrap gap-2">
             <button
               onClick={() => resolve('confirm', reason)}
-              className="flex items-center gap-1.5 rounded-lg bg-signal-confirm/90 px-3 py-2 text-[13px] font-semibold text-ink-950 transition hover:bg-signal-confirm"
+              className="flex items-center gap-1.5 rounded-lg bg-signal-confirm/90 px-3 py-2 text-[13px] font-semibold text-oncolor transition hover:bg-signal-confirm"
             >
               <Check size={14} /> Confirm — I still choose this
             </button>
@@ -190,17 +189,15 @@ function ChallengeCard({ ins }: { ins: ChallengeInsight }) {
             </button>
             <button
               onClick={() => resolve('skip')}
-              className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-[13px] text-parchment-300/70 transition hover:bg-white/5"
+              className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-[13px] text-muted transition hover:bg-overlay"
             >
               <SkipForward size={14} /> Skip this one
             </button>
           </div>
-          <p className="mt-2 text-[11px] text-parchment-300/45">
-            Reconsidering is logged as signal, not failure — and it leaves no trait mark.
-          </p>
+          <p className="mt-2 text-[11px] text-faint">Reconsidering is data, not failure.</p>
         </div>
       ) : (
-        <div className="mt-2 text-[12px] italic text-parchment-300/60">Answered — see the record.</div>
+        <div className="mt-2 text-[12px] italic text-muted">Answered — see the record.</div>
       )}
     </Shell>
   )
@@ -248,10 +245,10 @@ function VerdictCard({ ins }: { ins: VerdictInsight }) {
       accent={escalate ? '#b98ce6' : impact.color}
       glow={v.impact === 'worth_reconsidering' || escalate}
     >
-      <div className="mb-2 rounded-lg bg-ink-950/50 px-3 py-2">
-        <p className="text-[12px] text-parchment-300/70">
-          <span className="text-parchment-300/50">Claim </span>“{ins.claim}”
-          <span className="text-parchment-300/40"> — {ins.source}</span>
+      <div className="mb-2 rounded-lg bg-sunken px-3 py-2">
+        <p className="text-[12px] text-muted">
+          <span className="text-faint">Claim </span>“{ins.claim}”
+          <span className="text-faint"> — {ins.source}</span>
         </p>
       </div>
 
@@ -271,13 +268,13 @@ function VerdictCard({ ins }: { ins: VerdictInsight }) {
         </span>
       </div>
 
-      <p className="text-balance text-[14px] font-medium leading-relaxed text-parchment-50">
+      <p className="text-balance text-[14px] font-medium leading-relaxed text-fg2">
         {v.impactNote}
       </p>
 
       <button
         onClick={() => setOpen((o) => !o)}
-        className="mt-2 flex items-center gap-1 text-[12px] text-parchment-300/60 transition hover:text-parchment-100"
+        className="mt-2 flex items-center gap-1 text-[12px] text-muted transition hover:text-fg"
       >
         <ChevronDown size={13} className={cn('transition', open && 'rotate-180')} />
         {open ? 'Hide the check' : 'See the check & sources'}
@@ -292,8 +289,8 @@ function VerdictCard({ ins }: { ins: VerdictInsight }) {
             className="overflow-hidden"
           >
             <div className="mt-2 space-y-2 border-t hairline pt-2">
-              <p className="text-[13px] leading-relaxed text-parchment-100">{v.summary}</p>
-              <p className="text-[12.5px] leading-relaxed text-parchment-300/75">{v.detail}</p>
+              <p className="text-[13px] leading-relaxed text-fg">{v.summary}</p>
+              <p className="text-[12.5px] leading-relaxed text-muted">{v.detail}</p>
               {v.sources.length > 0 && (
                 <div className="space-y-1 pt-1">
                   {v.sources.map((s) => (
@@ -311,7 +308,7 @@ function VerdictCard({ ins }: { ins: VerdictInsight }) {
                           'shrink-0 rounded px-1.5 py-0.5 text-[9.5px] font-semibold uppercase',
                           s.tier === 'primary'
                             ? 'bg-signal-confirm/15 text-signal-confirm'
-                            : 'bg-white/8 text-parchment-300/60',
+                            : 'bg-overlay2 text-muted',
                         )}
                       >
                         {s.tier}
@@ -334,8 +331,8 @@ function FreshnessCard({ ins }: { ins: FreshnessInsight }) {
   const f = ins.payload
   return (
     <Shell icon={<Compass size={15} />} title={ins.title} at={ins.at} accent={f.hasUpdate ? '#e8b04b' : '#8a92c9'}>
-      <p className="text-[13px] leading-relaxed text-parchment-100">{f.note}</p>
-      <div className="mt-2 flex items-center gap-2 text-[11px] text-parchment-300/45">
+      <p className="text-[13px] leading-relaxed text-fg">{f.note}</p>
+      <div className="mt-2 flex items-center gap-2 text-[11px] text-faint">
         <span>Checked as of {f.checkedAsOf}</span>
         {f.sourceHint && (
           <a
@@ -359,13 +356,13 @@ function WorkaroundCard({ ins }: { ins: WorkaroundInsight }) {
     <Shell icon={<Route size={15} />} title={ins.title} at={ins.at} accent="#4fc4a1">
       <div className="space-y-2">
         {ins.payload.routes.map((r, i) => (
-          <div key={i} className="rounded-lg bg-ink-950/40 p-2.5">
-            <div className="text-[13px] font-medium text-parchment-50">{r.title}</div>
-            <div className="mt-0.5 text-[12px] leading-relaxed text-parchment-300/75">{r.detail}</div>
+          <div key={i} className="rounded-lg bg-sunken p-2.5">
+            <div className="text-[13px] font-medium text-fg2">{r.title}</div>
+            <div className="mt-0.5 text-[12px] leading-relaxed text-muted">{r.detail}</div>
           </div>
         ))}
       </div>
-      <p className="mt-2 text-[11px] leading-relaxed text-parchment-300/50">{ins.payload.note}</p>
+      <p className="mt-2 text-[11px] leading-relaxed text-faint">{ins.payload.note}</p>
     </Shell>
   )
 }
@@ -377,20 +374,20 @@ function AidCard({ ins }: { ins: AidInsight }) {
     <Shell icon={<PiggyBank size={15} />} title={ins.title} at={ins.at} accent="#4fc4a1">
       <div className="space-y-2">
         {ins.payload.schemes.map((s, i) => (
-          <div key={i} className="rounded-lg bg-ink-950/40 p-2.5">
+          <div key={i} className="rounded-lg bg-sunken p-2.5">
             <div className="flex items-center gap-2">
-              <span className="text-[13px] font-medium text-parchment-50">{s.title}</span>
+              <span className="text-[13px] font-medium text-fg2">{s.title}</span>
               {s.categoryTied && (
                 <span className="rounded bg-trait-structure/20 px-1.5 py-0.5 text-[9.5px] font-semibold uppercase text-trait-structure">
                   category-tied
                 </span>
               )}
             </div>
-            <div className="mt-0.5 text-[12px] leading-relaxed text-parchment-300/75">{s.detail}</div>
+            <div className="mt-0.5 text-[12px] leading-relaxed text-muted">{s.detail}</div>
           </div>
         ))}
       </div>
-      <p className="mt-2 text-[11px] leading-relaxed text-parchment-300/50">{ins.payload.note}</p>
+      <p className="mt-2 text-[11px] leading-relaxed text-faint">{ins.payload.note}</p>
     </Shell>
   )
 }
@@ -405,17 +402,17 @@ function DeadlineCard({ ins }: { ins: DeadlineInsight }) {
         <div className="space-y-1.5">
           {d.dates.map((x, i) => (
             <div key={i} className="flex items-baseline justify-between gap-3">
-              <span className="text-[13px] text-parchment-100">{x.label}</span>
+              <span className="text-[13px] text-fg">{x.label}</span>
               <span className="text-[12px] text-amber">{x.window}</span>
             </div>
           ))}
         </div>
       ) : (
-        <p className="text-[13px] text-parchment-300/70">
+        <p className="text-[13px] text-muted">
           No standard exam calendar for this path — the dates depend on the specific college/process.
         </p>
       )}
-      <p className="mt-2 text-[11px] leading-relaxed text-parchment-300/50">
+      <p className="mt-2 text-[11px] leading-relaxed text-faint">
         {d.verifyNote} (checked as of {d.checkedAsOf})
       </p>
       {d.source && (
@@ -452,8 +449,8 @@ function EligibilityCard({ ins }: { ins: EligibilityInsight }) {
       >
         {el.status === 'unknown' ? 'no percentage gate' : el.status}
       </span>
-      <p className="text-[13px] leading-relaxed text-parchment-100">{el.gapNote}</p>
-      <p className="mt-2 text-[11px] leading-relaxed text-parchment-300/50">{el.verifyNote}</p>
+      <p className="text-[13px] leading-relaxed text-fg">{el.gapNote}</p>
+      <p className="mt-2 text-[11px] leading-relaxed text-faint">{el.verifyNote}</p>
     </Shell>
   )
 }
@@ -485,9 +482,9 @@ function CompareCard({ ins }: { ins: CompareInsight }) {
           <tbody>
             {rows.map((r) => (
               <tr key={r.label} className="border-t hairline align-top">
-                <td className="py-1.5 pr-2 text-parchment-300/55">{r.label}</td>
+                <td className="py-1.5 pr-2 text-faint">{r.label}</td>
                 {nodes.map((n) => (
-                  <td key={n.id} className="px-2 py-1.5 text-parchment-100">
+                  <td key={n.id} className="px-2 py-1.5 text-fg">
                     {r.get(n)}
                   </td>
                 ))}
@@ -496,7 +493,7 @@ function CompareCard({ ins }: { ins: CompareInsight }) {
           </tbody>
         </table>
       </div>
-      <p className="mt-2 text-[11px] text-parchment-300/50">Exploratory — commits nothing to your path.</p>
+      <p className="mt-2 text-[11px] text-faint">Exploratory — commits nothing to your path.</p>
     </Shell>
   )
 }
@@ -513,7 +510,7 @@ function NodeCard({ ins }: { ins: NodeInsight }) {
           user-researched
         </span>
       )}
-      <p className="text-[13px] leading-relaxed text-parchment-100">{n.insight}</p>
+      <p className="text-[13px] leading-relaxed text-fg">{n.insight}</p>
       <button
         onClick={() => select(n.id)}
         className="mt-2 text-[12px] font-medium text-amber hover:underline"
@@ -530,7 +527,7 @@ function OpportunityCard({ ins }: { ins: OpportunityInsight }) {
   const n = ins.payload.node
   return (
     <Shell icon={<Compass size={15} />} title={ins.title} at={ins.at} accent={nodeColor(n)}>
-      <p className="mb-2 text-[12px] leading-relaxed text-parchment-300/75">
+      <p className="mb-2 text-[12px] leading-relaxed text-muted">
         Genuine deep-links into live external search — never scraped or cached data dressed up as
         current.
       </p>
@@ -540,7 +537,7 @@ function OpportunityCard({ ins }: { ins: OpportunityInsight }) {
             href={n.jobSearchUrl}
             target="_blank"
             rel="noreferrer"
-            className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-[12.5px] text-parchment-100 transition hover:bg-white/10"
+            className="flex items-center gap-1.5 rounded-lg border border-line bg-overlay px-3 py-2 text-[12.5px] text-fg transition hover:bg-overlay2"
           >
             <ExternalLink size={13} /> Live jobs
           </a>
@@ -550,7 +547,7 @@ function OpportunityCard({ ins }: { ins: OpportunityInsight }) {
             href={n.courseSearchUrl}
             target="_blank"
             rel="noreferrer"
-            className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-[12.5px] text-parchment-100 transition hover:bg-white/10"
+            className="flex items-center gap-1.5 rounded-lg border border-line bg-overlay px-3 py-2 text-[12.5px] text-fg transition hover:bg-overlay2"
           >
             <ExternalLink size={13} /> Courses & colleges
           </a>

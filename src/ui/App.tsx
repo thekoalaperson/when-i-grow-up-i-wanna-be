@@ -10,11 +10,18 @@ import ExportModal from './ExportModal'
 export default function App() {
   const started = useStore((s) => s.started)
   const start = useStore((s) => s.start)
+  const theme = useStore((s) => s.theme)
   const [mobileView, setMobileView] = useState<'chat' | 'map'>('map')
 
   useEffect(() => {
     if (!started) start()
   }, [started, start])
+
+  useEffect(() => {
+    const root = document.documentElement
+    root.dataset.theme = theme
+    root.style.colorScheme = theme
+  }, [theme])
 
   return (
     <div className="relative z-10 flex h-screen flex-col">
@@ -33,7 +40,7 @@ export default function App() {
             onClick={() => setMobileView(t.id)}
             className={cn(
               'flex flex-1 items-center justify-center gap-1.5 rounded-lg py-1.5 text-[12.5px] font-medium transition',
-              mobileView === t.id ? 'bg-white/8 text-parchment-50' : 'text-parchment-300/55',
+              mobileView === t.id ? 'bg-overlay2 text-fg2' : 'text-faint',
             )}
           >
             {t.icon}

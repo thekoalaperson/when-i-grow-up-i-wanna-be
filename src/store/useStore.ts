@@ -39,7 +39,18 @@ import type {
   NodeStatus,
   PlacedNode,
   RightTab,
+  Theme,
 } from './model'
+
+function getInitialTheme(): Theme {
+  try {
+    if (typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: light)').matches)
+      return 'light'
+  } catch {
+    /* noop */
+  }
+  return 'dark'
+}
 
 // Storage that survives a locked-down / sandboxed iframe (e.g. a published artifact),
 // where touching localStorage can throw — fall back to memory instead of blanking the app.
@@ -81,6 +92,7 @@ const uid = (p = 'id'): string => {
 
 interface State {
   mode: Mode
+  theme: Theme
   started: boolean
   ctx: StudentContext
   placed: Record<string, PlacedNode>
@@ -100,6 +112,7 @@ interface State {
   start: () => void
   resetAll: () => void
   setMode: (m: Mode) => void
+  toggleTheme: () => void
   setRightTab: (t: RightTab) => void
   selectNode: (id?: string) => void
 
@@ -222,16 +235,13 @@ export const useStore = create<State>()(
       const promptStreams = () => {
         const interestId = get().ctx.chosenInterestId
         const hints = interestId ? INTEREST_STREAM_HINTS[interestId] ?? [] : []
-        sysChips(
-          'After 10th this usually becomes a stream. Which do you want to look at? (The highlighted ones fit what you just told me — but look wherever you like.)',
-          streamChips(hints),
-        )
+        sysChips('After 10th, this becomes a stream. Which do you want to look at? (✨ fits what you said.)', streamChips(hints))
       }
       const promptCareers = (streamId: string) => {
-        sysChips('That opens these directions after 12th. Which one pulls at you?', careerChips(streamId))
+        sysChips('These open up after 12th. Which pulls you?', careerChips(streamId))
       }
       const promptPostPath = () => {
-        sysChips('This is a real direction now. Want to pressure-test it, or take your profile and go?', POST_PATH_CHIPS)
+        sysChips('Real direction now. Pressure-test it, or take your profile?', POST_PATH_CHIPS)
       }
 
       const openChallenge = (node: DecisionNode) => {
@@ -267,6 +277,7 @@ export const useStore = create<State>()(
 
       return {
         mode: 'student',
+        theme: getInitialTheme(),
         started: false,
         ctx: { profile: emptyProfile(), excluded: [] },
         placed: {},
@@ -286,10 +297,8 @@ export const useStore = create<State>()(
             started: true,
             ctx: { profile: emptyProfile(), excluded: [] },
           })
-          sys("Hi — I'm Future Map. 👋")
-          sys("I won't tell you what to be. I'll help you decide with your eyes open — grounded in real numbers, and honest when something doesn't add up.")
-          sys('Whatever you choose, you leave with one thing: a profile of yourself, built from how you decide. It fills in on the right as we go. →')
-          sysChips('So, to start light: where does your head go when no one is grading you?', interestChips())
+          sys("Hi — I'm Future Map. 👋 I won't tell you what to be — I'll help you see each choice clearly, and you'll leave with a profile of yourself either way. It builds on the right. →")
+          sysChips('Where does your head go when no one is grading you?', interestChips())
         },
 
         resetAll: () => {
@@ -321,6 +330,7 @@ export const useStore = create<State>()(
             )
           else sys("Student mode — back to a gentler pace.")
         },
+        toggleTheme: () => set((s) => ({ theme: s.theme === 'dark' ? 'light' : 'dark' })),
         setRightTab: (t) => set({ rightTab: t }),
         selectNode: (id) => set({ selectedNodeId: id }),
 
@@ -334,7 +344,7 @@ export const useStore = create<State>()(
           set((s) => ({ ctx: { ...s.ctx, chosenInterestId: id } }))
           user(node.label)
           addRecord(rec('note', `Interest signal: ${node.label}`, { nodeId: id }))
-          sys(node.insight)
+          sys(node.insight.split(/(?<=[.!?])\s/)[0]) // one-line acknowledgement; full insight lives on the node
           promptStreams()
           set({ awaiting: undefined })
         },
@@ -408,10 +418,10 @@ export const useStore = create<State>()(
               }),
             )
             if (stage === 2) {
-              sys(`Locked in: ${node.label}. Your profile just learned something real about you. →`)
+              sys(`Locked in — ${node.label}. Your profile just shifted. →`)
               promptCareers(node.id)
             } else {
-              sys(`${node.label} is a real direction now. Notice how the map and your profile shifted. →`)
+              sys(`${node.label} — a real direction now. →`)
               promptPostPath()
             }
           } else if (choice === 'reconsider') {
@@ -436,12 +446,12 @@ export const useStore = create<State>()(
                 detail: reasoning?.trim() || 'Backed out of the challenge — logged as signal, not failure.',
               }),
             )
-            sys('Good. Backing out is data, not failure — I logged it, and it left no trait mark. Nothing is closed.')
+            sys('Noted — backing out is data, not failure. Nothing’s closed.')
             if (stage === 2) promptStreams()
             else if (get().ctx.chosenStreamId) promptCareers(get().ctx.chosenStreamId!)
           } else {
             addRecord(rec('skip', `Skipped the challenge on ${node.label}`, { nodeId: node.id }))
-            sys("Skipped — no judgment, and it stays open. You can come back to it any time.")
+            sys('Skipped — it stays open.')
             if (stage === 2) promptStreams()
             else if (get().ctx.chosenStreamId) promptCareers(get().ctx.chosenStreamId!)
           }
@@ -480,7 +490,7 @@ export const useStore = create<State>()(
           if (c.category != null && c.category !== 'unspecified')
             parts.push(`${CATEGORY_LABEL[c.category]} category (private, only for accurate cutoffs)`)
           addRecord(rec('constraint', `Set: ${parts.join(', ') || 'constraints'}`, { detail: 'An active filter on the map now.' }))
-          sys(`Set — ${parts.join(', ')}. It's an active filter now: paths that don't fit will say so, and by how much.`)
+          sys(`Set: ${parts.join(', ')}. Paths that don't fit will now flag it. →`)
           set({ awaiting: undefined })
         },
 
@@ -495,7 +505,7 @@ export const useStore = create<State>()(
             switch (val) {
               case 'prompt_claim':
                 user('Check something I was told')
-                sys('Go ahead — paste exactly what you heard, and who said it. A sentence or a whole paragraph, your call.')
+                sys('Go ahead — paste what you heard, and who said it.')
                 set({ awaiting: 'claim' })
                 return
               case 'opportunities':
@@ -505,7 +515,7 @@ export const useStore = create<State>()(
               case 'prompt_eligibility':
                 if (get().ctx.profile.percentage != null && chosen) return void get().runEligibility(chosen)
                 user('Am I eligible?')
-                sys('What did you score in your latest board/exam? A percentage is enough. You can add your category too — it’s private, and it makes cutoffs accurate rather than assumed.')
+                sys('What did you score last? A percentage is enough — add your category too if you like (private, keeps cutoffs accurate).')
                 set({ awaiting: 'eligibility' })
                 return
               case 'freshness':
@@ -630,7 +640,7 @@ export const useStore = create<State>()(
           if (!node) return
           addInsight({ id: uid('ins'), type: 'opportunity', at: Date.now(), nodeId, title: `What's live for ${node.label}`, payload: { node } })
           addRecord(rec('note', `Opened live opportunities for ${node.label}`, { nodeId }))
-          sys('Real, current search — genuine deep-links into live listings, never cached data dressed up as current. On the right. →')
+          sys('Live search — genuine deep-links, never cached data. On the right. →')
         },
         runFreshness: async (nodeId) => {
           const f = await seedProvider.checkFreshness(nodeId)
@@ -644,28 +654,28 @@ export const useStore = create<State>()(
           const node = get().getNode(nodeId)
           addInsight({ id: uid('ins'), type: 'eligibility', at: Date.now(), nodeId, title: `Eligibility — ${node?.label ?? ''}`, payload: el })
           addRecord(rec('eligibility', `Eligibility: ${node?.label ?? nodeId}`, { nodeId, detail: el.gapNote }))
-          sys('Read on the right — as “typically requires X, yours is Y, verify on the source”, never a closed door. →')
+          sys('On the right — a gap to verify, never a closed door. →')
         },
         runWorkaround: async (nodeId) => {
           const w = await seedProvider.findWorkaround(nodeId, get().ctx)
           const node = get().getNode(nodeId)
           addInsight({ id: uid('ins'), type: 'workaround', at: Date.now(), nodeId, title: `Legitimate routes to ${node?.label ?? 'this'}`, payload: w })
           addRecord(rec('research', `Workaround research: ${node?.label ?? nodeId}`, { nodeId }))
-          sys('Real, sanctioned alternate routes — never ways around a genuine requirement. →')
+          sys('Real, sanctioned alternate routes — on the right. →')
         },
         runAid: async (nodeId) => {
           const a = await seedProvider.checkFinancialAid(nodeId, get().ctx)
           const node = get().getNode(nodeId)
           addInsight({ id: uid('ins'), type: 'aid', at: Date.now(), nodeId, title: `Aid & funding for ${node?.label ?? 'this'}`, payload: a })
           addRecord(rec('research', `Financial-aid research: ${node?.label ?? nodeId}`, { nodeId }))
-          sys('Factual scheme and loan-structure info — never a recommendation of a lender. →')
+          sys('Factual scheme info, not a recommendation. On the right. →')
         },
         runDeadlines: async (nodeId) => {
           const d = await seedProvider.checkDeadlines(nodeId)
           const node = get().getNode(nodeId)
           addInsight({ id: uid('ins'), type: 'deadline', at: Date.now(), nodeId, title: `Timing for ${node?.label ?? 'this'}`, payload: d })
           addRecord(rec('note', `Deadline check: ${node?.label ?? nodeId}`, { nodeId }))
-          sys('Indicative windows on the right — a heads-up, not a system of record. Verify on the official source. →')
+          sys('Indicative windows — a heads-up, verify on the source. →')
         },
 
         generateProfile: () => {
@@ -673,7 +683,7 @@ export const useStore = create<State>()(
           const summary = buildProfileSummary(ctx, records, confirmedStages(ctx), Date.now())
           set({ exportMarkdown: summary.markdown, exportOpen: true, rightTab: 'profile' })
           addRecord(rec('note', 'Generated a profile snapshot', { detail: 'The guaranteed takeaway — dated and exportable.' }))
-          sys('Here’s your profile — dated, and yours to keep whatever you decide next. →')
+          sys('Here’s your profile — dated, and yours to keep. →')
         },
         closeExport: () => set({ exportOpen: false }),
         toggleChecklist: (nodeId, idx) =>
@@ -689,6 +699,7 @@ export const useStore = create<State>()(
       storage: createJSONStorage(() => safeStorage),
       partialize: (s) => ({
         mode: s.mode,
+        theme: s.theme,
         started: s.started,
         ctx: s.ctx,
         placed: s.placed,

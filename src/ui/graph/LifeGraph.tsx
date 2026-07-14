@@ -53,7 +53,7 @@ export default function LifeGraph() {
             x={TIER_X[i]}
             y={26}
             textAnchor={i === 0 ? 'start' : 'middle'}
-            className="fill-parchment-300/45"
+            className="fill-faint"
             style={{ fontSize: 12, letterSpacing: '0.06em', textTransform: 'uppercase' }}
           >
             {t}
@@ -67,8 +67,9 @@ export default function LifeGraph() {
             return (
               <motion.path
                 key={e.id}
+                className={e.status === 'confirmed' ? undefined : '[stroke:var(--edge)]'}
                 d={edgePath(e.from, e.to)}
-                stroke={e.status === 'confirmed' ? 'rgba(232,176,75,0.55)' : 'rgba(255,255,255,0.16)'}
+                stroke={e.status === 'confirmed' ? 'rgba(232,176,75,0.55)' : undefined}
                 strokeWidth={e.status === 'confirmed' ? 2 : 1.4}
                 strokeDasharray={dim ? '3 6' : undefined}
                 initial={{ pathLength: 0, opacity: 0 }}
@@ -87,7 +88,7 @@ export default function LifeGraph() {
             x={layout.origin.x}
             y={layout.origin.y + 30}
             textAnchor="middle"
-            className="fill-parchment-100"
+            className="fill-fg"
             style={{ fontSize: 13, fontWeight: 600 }}
           >
             You
@@ -108,7 +109,7 @@ export default function LifeGraph() {
 
       {!hasNodes && (
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-          <div className="max-w-[240px] text-center text-sm text-parchment-300/60">
+          <div className="max-w-[240px] text-center text-sm text-muted">
             Your map starts here. Answer on the left, and it grows — one honest decision at a time.
           </div>
         </div>
@@ -152,32 +153,43 @@ function Node({
         <circle cx={0} cy={0} r={r + 6} fill="none" stroke="#e8b04b" strokeWidth={2} className="animate-pulse-ring" />
       )}
       {confirmed && <circle cx={0} cy={0} r={r + 8} fill={color} opacity={0.14} />}
-      {selected && <circle cx={0} cy={0} r={r + 5} fill="none" stroke="#f7f4ec" strokeWidth={1.5} opacity={0.8} />}
+      {selected && (
+        <circle
+          cx={0}
+          cy={0}
+          r={r + 5}
+          fill="none"
+          className="[stroke:rgb(var(--fg2))]"
+          strokeWidth={1.5}
+          opacity={0.8}
+        />
+      )}
 
       <circle
         cx={0}
         cy={0}
         r={r}
-        fill={confirmed ? color : '#12151d'}
+        className={confirmed ? undefined : '[fill:var(--node-bg)]'}
+        fill={confirmed ? color : undefined}
         stroke={color}
         strokeWidth={confirmed ? 0 : 2}
         strokeDasharray={reconsidered ? '3 4' : undefined}
       />
-      {confirmed && <circle cx={0} cy={0} r={r - 4} fill="#0b0d12" opacity={0.35} />}
+      {confirmed && <circle cx={0} cy={0} r={r - 4} className="[fill:var(--node-inner)]" opacity={0.35} />}
       {ln.node.userAdded && (
-        <circle cx={r - 1} cy={-(r - 1)} r={3.5} fill="#f0c874" stroke="#0b0d12" strokeWidth={1} />
+        <circle cx={r - 1} cy={-(r - 1)} r={3.5} fill="#f0c874" className="[stroke:var(--node-inner)]" strokeWidth={1} />
       )}
 
       <text
         x={18}
         y={ln.node.stage === 3 ? -2 : 4}
-        className="fill-parchment-100"
+        className="fill-fg"
         style={{ fontSize: 12.5, fontWeight: confirmed ? 600 : 400, opacity: excluded ? 0.5 : 1 }}
       >
         {ln.node.label}
       </text>
       {ln.node.stage === 3 && ln.node.costMin != null && (
-        <text x={18} y={12} className="fill-parchment-300/60" style={{ fontSize: 10.5 }}>
+        <text x={18} y={12} className="fill-muted" style={{ fontSize: 10.5 }}>
           ₹{ln.node.costMin}–{ln.node.costMax}L · {ln.node.yearsToFirstIncome}y
         </text>
       )}
@@ -193,7 +205,7 @@ function Legend() {
     { c: '#6b7385', label: 'Set aside', dim: true },
   ]
   return (
-    <div className="pointer-events-none absolute bottom-3 left-4 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-parchment-300/70">
+    <div className="pointer-events-none absolute bottom-3 left-4 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-muted">
       {items.map((it) => (
         <span key={it.label} className="flex items-center gap-1.5">
           <span

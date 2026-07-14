@@ -25,7 +25,7 @@ export default function RightCanvas() {
     <div className="relative flex h-full flex-col gap-3">
       {/* graph hero */}
       <div className="relative h-[50%] min-h-[220px] overflow-hidden rounded-2xl glass-soft">
-        <div className="pointer-events-none absolute left-4 top-3 z-10 flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-parchment-300/50">
+        <div className="pointer-events-none absolute left-4 top-3 z-10 flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-faint">
           <GitBranch size={12} /> Your life graph
         </div>
         <LifeGraph />
@@ -40,13 +40,13 @@ export default function RightCanvas() {
               onClick={() => setTab(t.id)}
               className={cn(
                 'relative flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[12.5px] font-medium transition',
-                rightTab === t.id ? 'text-parchment-50' : 'text-parchment-300/55 hover:text-parchment-100',
+                rightTab === t.id ? 'text-fg2' : 'text-faint hover:text-fg',
               )}
             >
               {rightTab === t.id && (
                 <motion.span
                   layoutId="tab-bg"
-                  className="absolute inset-0 rounded-lg bg-white/8"
+                  className="absolute inset-0 rounded-lg bg-overlay2"
                   transition={{ type: 'spring', stiffness: 400, damping: 32 }}
                 />
               )}
@@ -54,7 +54,7 @@ export default function RightCanvas() {
                 {t.icon}
                 {t.label}
                 {t.count != null && t.count > 0 && (
-                  <span className="rounded-full bg-white/10 px-1.5 text-[10px] tabular-nums text-parchment-300/70">
+                  <span className="rounded-full bg-overlay2 px-1.5 text-[10px] tabular-nums text-muted">
                     {t.count}
                   </span>
                 )}

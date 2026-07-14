@@ -2,8 +2,134 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─────────────────────────────────────────────────────────────────────────────
+   Theme tokens. Dark is the native look (a cartographer's desk at night); light is
+   a warm paper study. Both are designed, not inverted. Explicit choice (data-theme)
+   wins; otherwise we follow the OS via prefers-color-scheme.
+   ───────────────────────────────────────────────────────────────────────────── */
+
 :root {
+  /* dark (default) */
+  --bg: 11 13 18;
+  --surface: 21 25 34;
+  --surface2: 26 31 43;
+  --surface3: 35 42 56;
+  --sunken: 8 10 14;
+  --fg: 239 233 219;
+  --fg2: 247 244 236;
+  --muted: 176 166 142;
+  --faint: 120 114 100;
+  --amber: 232 176 75;
+  --amber-soft: #f0c874;
+  --oncolor: 11 13 18;
+
+  --line: rgba(255, 255, 255, 0.08);
+  --line2: rgba(255, 255, 255, 0.14);
+  --overlay: rgba(255, 255, 255, 0.05);
+  --overlay2: rgba(255, 255, 255, 0.09);
+  --grid: rgba(255, 255, 255, 0.02);
+  --scroll: rgba(255, 255, 255, 0.14);
+  --scroll-hover: rgba(255, 255, 255, 0.24);
+  --glass-a: rgba(26, 31, 43, 0.72);
+  --glass-b: rgba(16, 19, 25, 0.72);
+  --glass-soft: rgba(21, 25, 34, 0.55);
+  --glass-border: rgba(255, 255, 255, 0.06);
+
+  /* graph & chart neutrals */
+  --node-bg: #12151d;
+  --node-inner: #0b0d12;
+  --edge: rgba(255, 255, 255, 0.16);
+  --ring: rgba(255, 255, 255, 0.07);
+  --axis: rgba(255, 255, 255, 0.06);
+  --icon-bg: #12151d;
+
+  --page-glow:
+    radial-gradient(1200px 700px at 78% -8%, rgba(232, 176, 75, 0.08), transparent 60%),
+    radial-gradient(900px 600px at 8% 108%, rgba(90, 169, 230, 0.06), transparent 55%),
+    radial-gradient(700px 500px at 100% 100%, rgba(185, 140, 230, 0.05), transparent 55%);
+
   color-scheme: dark;
+}
+
+/* light token set, applied both on explicit choice and on OS preference */
+:root[data-theme='light'] {
+  --bg: 244 241 234;
+  --surface: 255 255 255;
+  --surface2: 249 246 239;
+  --surface3: 238 233 223;
+  --sunken: 236 231 221;
+  --fg: 38 42 54;
+  --fg2: 20 24 33;
+  --muted: 96 90 78;
+  --faint: 143 136 122;
+  --amber: 176 115 26;
+  --amber-soft: #b0731a;
+  --oncolor: 255 253 248;
+
+  --line: rgba(24, 22, 16, 0.1);
+  --line2: rgba(24, 22, 16, 0.17);
+  --overlay: rgba(24, 22, 16, 0.045);
+  --overlay2: rgba(24, 22, 16, 0.09);
+  --grid: rgba(24, 22, 16, 0.03);
+  --scroll: rgba(24, 22, 16, 0.18);
+  --scroll-hover: rgba(24, 22, 16, 0.3);
+  --glass-a: rgba(255, 255, 255, 0.82);
+  --glass-b: rgba(248, 245, 238, 0.82);
+  --glass-soft: rgba(255, 255, 255, 0.62);
+  --glass-border: rgba(24, 22, 16, 0.08);
+
+  --node-bg: #ffffff;
+  --node-inner: #f4f1ea;
+  --edge: rgba(24, 22, 16, 0.18);
+  --ring: rgba(24, 22, 16, 0.1);
+  --axis: rgba(24, 22, 16, 0.09);
+  --icon-bg: #f3efe6;
+
+  --page-glow:
+    radial-gradient(1200px 700px at 80% -10%, rgba(200, 138, 44, 0.12), transparent 60%),
+    radial-gradient(900px 600px at 6% 110%, rgba(90, 169, 230, 0.08), transparent 55%),
+    radial-gradient(700px 500px at 100% 100%, rgba(150, 120, 200, 0.06), transparent 55%);
+
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) {
+    --bg: 244 241 234;
+    --surface: 255 255 255;
+    --surface2: 249 246 239;
+    --surface3: 238 233 223;
+    --sunken: 236 231 221;
+    --fg: 38 42 54;
+    --fg2: 20 24 33;
+    --muted: 96 90 78;
+    --faint: 143 136 122;
+    --amber: 176 115 26;
+    --amber-soft: #b0731a;
+    --oncolor: 255 253 248;
+    --line: rgba(24, 22, 16, 0.1);
+    --line2: rgba(24, 22, 16, 0.17);
+    --overlay: rgba(24, 22, 16, 0.045);
+    --overlay2: rgba(24, 22, 16, 0.09);
+    --grid: rgba(24, 22, 16, 0.03);
+    --scroll: rgba(24, 22, 16, 0.18);
+    --scroll-hover: rgba(24, 22, 16, 0.3);
+    --glass-a: rgba(255, 255, 255, 0.82);
+    --glass-b: rgba(248, 245, 238, 0.82);
+    --glass-soft: rgba(255, 255, 255, 0.62);
+    --glass-border: rgba(24, 22, 16, 0.08);
+    --node-bg: #ffffff;
+    --node-inner: #f4f1ea;
+    --edge: rgba(24, 22, 16, 0.18);
+    --ring: rgba(24, 22, 16, 0.1);
+    --axis: rgba(24, 22, 16, 0.09);
+    --icon-bg: #f3efe6;
+    --page-glow:
+      radial-gradient(1200px 700px at 80% -10%, rgba(200, 138, 44, 0.12), transparent 60%),
+      radial-gradient(900px 600px at 6% 110%, rgba(90, 169, 230, 0.08), transparent 55%),
+      radial-gradient(700px 500px at 100% 100%, rgba(150, 120, 200, 0.06), transparent 55%);
+    color-scheme: light;
+  }
 }
 
 html,
@@ -15,14 +141,12 @@ body,
 body {
   margin: 0;
   font-family: theme('fontFamily.sans');
-  color: theme('colors.parchment.100');
-  background-color: #0b0d12;
-  background-image:
-    radial-gradient(1200px 700px at 78% -8%, rgba(232, 176, 75, 0.08), transparent 60%),
-    radial-gradient(900px 600px at 8% 108%, rgba(90, 169, 230, 0.06), transparent 55%),
-    radial-gradient(700px 500px at 100% 100%, rgba(185, 140, 230, 0.05), transparent 55%);
+  color: rgb(var(--fg));
+  background-color: rgb(var(--bg));
+  background-image: var(--page-glow);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  transition: background-color 0.4s ease, color 0.4s ease;
 }
 
 /* faint cartographer's grid */
@@ -33,8 +157,8 @@ body {
   pointer-events: none;
   z-index: 0;
   background-image:
-    linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
   background-size: 44px 44px;
   mask-image: radial-gradient(ellipse at center, black 30%, transparent 85%);
 }
@@ -52,35 +176,35 @@ body {
 /* Scrollbars — quiet */
 * {
   scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.14) transparent;
+  scrollbar-color: var(--scroll) transparent;
 }
 *::-webkit-scrollbar {
   width: 9px;
   height: 9px;
 }
 *::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.12);
+  background: var(--scroll);
   border-radius: 999px;
   border: 2px solid transparent;
   background-clip: content-box;
 }
 *::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.22);
+  background: var(--scroll-hover);
   background-clip: content-box;
 }
 
 @layer utilities {
   .glass {
-    background: linear-gradient(180deg, rgba(26, 31, 43, 0.72), rgba(16, 19, 25, 0.72));
+    background: linear-gradient(180deg, var(--glass-a), var(--glass-b));
     backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--glass-border);
   }
   .glass-soft {
-    background: rgba(21, 25, 34, 0.55);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    background: var(--glass-soft);
+    border: 1px solid var(--glass-border);
   }
   .hairline {
-    border-color: rgba(255, 255, 255, 0.07);
+    border-color: var(--glass-border);
   }
   .text-balance {
     text-wrap: balance;
@@ -92,13 +216,11 @@ body {
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
-  /* markdown-ish body for the export */
   .prose-invert-sm p {
     margin: 0.5em 0;
   }
 }
 
-/* prevent iOS text-size jank + horizontal scroll on the page body */
 html {
   -webkit-text-size-adjust: 100%;
 }

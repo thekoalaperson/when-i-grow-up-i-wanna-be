@@ -62,7 +62,7 @@ or it's a rubber stamp that flatters. Future Map is neither.
 | **Human escalation** | A values/wellbeing signal (family pressure, distress) is recognised, named plainly, and routed to a person + the Tele-MANAS helpline — never forced into a data-flavoured verdict. |
 | **Continuity** | Everything persists locally across sessions. Checklist items can be ticked off over time. |
 | **Export** | A dated, plain-language profile snapshot — the guaranteed takeaway — as copyable/downloadable Markdown. |
-| **Modes** | Student and Counsellor framing, sharing the same underlying profile. |
+| **Modes & themes** | Student and Counsellor framing over one shared profile; a token-based light/dark theme toggle (defaults to your OS preference, remembers your choice). |
 
 ### The challenge names the tension before it asks
 
@@ -75,6 +75,12 @@ or it's a rubber stamp that flatters. Future Map is neither.
 ### The profile you leave with
 
 ![The profile export](docs/05-export.png)
+
+### Light theme
+
+The same interface as a warm paper study — a designed second theme, not an inversion.
+
+![The light theme](docs/06-light-theme.png)
 
 ---
 

@@ -41,7 +41,7 @@ export default function ExportModal() {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={close}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-ink-950/75 p-4 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-sunken p-4 backdrop-blur-sm"
         >
           <motion.div
             initial={{ scale: 0.96, opacity: 0, y: 10 }}
@@ -53,26 +53,26 @@ export default function ExportModal() {
             <div className="flex items-center justify-between border-b hairline px-5 py-3">
               <div className="flex items-center gap-2">
                 <span className="h-2 w-2 rounded-full bg-amber" />
-                <h2 className="text-[15px] font-medium text-parchment-50">Your profile</h2>
-                <span className="text-[11.5px] text-parchment-300/45">the takeaway — dated & yours</span>
+                <h2 className="text-[15px] font-medium text-fg2">Your profile</h2>
+                <span className="text-[11.5px] text-faint">the takeaway — dated & yours</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <button
                   onClick={copy}
-                  className="flex items-center gap-1.5 rounded-lg border border-white/10 px-2.5 py-1.5 text-[12px] text-parchment-100 transition hover:bg-white/5"
+                  className="flex items-center gap-1.5 rounded-lg border border-line px-2.5 py-1.5 text-[12px] text-fg transition hover:bg-overlay"
                 >
                   {copied ? <Check size={13} className="text-signal-confirm" /> : <Copy size={13} />}
                   {copied ? 'Copied' : 'Copy'}
                 </button>
                 <button
                   onClick={download}
-                  className="flex items-center gap-1.5 rounded-lg bg-amber/90 px-2.5 py-1.5 text-[12px] font-semibold text-ink-950 transition hover:bg-amber"
+                  className="flex items-center gap-1.5 rounded-lg bg-amber/90 px-2.5 py-1.5 text-[12px] font-semibold text-oncolor transition hover:bg-amber"
                 >
                   <Download size={13} /> Download .md
                 </button>
                 <button
                   onClick={close}
-                  className="ml-1 rounded-lg p-1.5 text-parchment-300/60 transition hover:bg-white/8 hover:text-parchment-50"
+                  className="ml-1 rounded-lg p-1.5 text-muted transition hover:bg-overlay2 hover:text-fg2"
                 >
                   <X size={17} />
                 </button>
@@ -101,19 +101,19 @@ function inline(text: string): ReactNode[] {
     const tok = m[0]
     if (tok.startsWith('**'))
       parts.push(
-        <strong key={k++} className="font-semibold text-parchment-50">
+        <strong key={k++} className="font-semibold text-fg2">
           {tok.slice(2, -2)}
         </strong>,
       )
     else if (tok.startsWith('`'))
       parts.push(
-        <code key={k++} className="rounded bg-white/8 px-1 py-0.5 font-mono text-[11.5px] text-amber">
+        <code key={k++} className="rounded bg-overlay2 px-1 py-0.5 font-mono text-[11.5px] text-amber">
           {tok.slice(1, -1)}
         </code>,
       )
     else
       parts.push(
-        <em key={k++} className="text-parchment-300/80">
+        <em key={k++} className="text-muted">
           {tok.slice(1, -1)}
         </em>,
       )
@@ -142,7 +142,7 @@ function Markdown({ text }: { text: string }) {
     const line = raw.trimEnd()
     if (line.startsWith('- ')) {
       list.push(
-        <li key={key++} className="flex gap-2 text-[13px] leading-relaxed text-parchment-100">
+        <li key={key++} className="flex gap-2 text-[13px] leading-relaxed text-fg">
           <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-amber" />
           <span>{inline(line.slice(2))}</span>
         </li>,
@@ -151,7 +151,7 @@ function Markdown({ text }: { text: string }) {
     }
     flush()
     if (line === '') out.push(<div key={key++} className="h-1.5" />)
-    else if (line === '---') out.push(<hr key={key++} className="my-4 border-white/10" />)
+    else if (line === '---') out.push(<hr key={key++} className="my-4 border-line" />)
     else if (line.startsWith('### '))
       out.push(
         <h3 key={key++} className="mb-1 mt-4 text-[13px] font-semibold uppercase tracking-wide text-amber/85">
@@ -160,19 +160,19 @@ function Markdown({ text }: { text: string }) {
       )
     else if (line.startsWith('## '))
       out.push(
-        <h2 key={key++} className="mb-1.5 mt-5 font-display text-[18px] text-parchment-50">
+        <h2 key={key++} className="mb-1.5 mt-5 font-display text-[18px] text-fg2">
           {inline(line.slice(3))}
         </h2>,
       )
     else if (line.startsWith('# '))
       out.push(
-        <h1 key={key++} className="mb-2 font-display text-[24px] text-parchment-50">
+        <h1 key={key++} className="mb-2 font-display text-[24px] text-fg2">
           {inline(line.slice(2))}
         </h1>,
       )
     else
       out.push(
-        <p key={key++} className="my-1.5 text-[13px] leading-relaxed text-parchment-100">
+        <p key={key++} className="my-1.5 text-[13px] leading-relaxed text-fg">
           {inline(line)}
         </p>,
       )
